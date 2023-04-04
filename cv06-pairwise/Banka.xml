@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<System name="Banka">
+  <Parameters>
+    <Parameter id="0" name="cislo_uctu" type="1">
+      <values>
+        <value>111333/2700</value>
+        <value>20201117/2010</value>
+        <value>9916210/0123</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+    <Parameter id="1" name="date" type="1">
+      <values>
+        <value>16. 4. 2020</value>
+        <value>8. 5. 2020</value>
+        <value>31. 3. 2020</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+    <Parameter id="2" name="castka" type="1">
+      <values>
+        <value>9 999</value>
+        <value>10 000</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+  </Parameters>
+  <OutputParameters />
+  <Relations />
+  <Constraints />
+  <Testset doi="2">
+    <Testcase TCNo="0">
+      <Value>1</Value>
+      <Value>111333/2700</Value>
+      <Value>16. 4. 2020</Value>
+      <Value>10 000</Value>
+    </Testcase>
+    <Testcase TCNo="1">
+      <Value>2</Value>
+      <Value>111333/2700</Value>
+      <Value>8. 5. 2020</Value>
+      <Value>9 999</Value>
+    </Testcase>
+    <Testcase TCNo="2">
+      <Value>3</Value>
+      <Value>111333/2700</Value>
+      <Value>31. 3. 2020</Value>
+      <Value>10 000</Value>
+    </Testcase>
+    <Testcase TCNo="3">
+      <Value>4</Value>
+      <Value>20201117/2010</Value>
+      <Value>16. 4. 2020</Value>
+      <Value>9 999</Value>
+    </Testcase>
+    <Testcase TCNo="4">
+      <Value>5</Value>
+      <Value>20201117/2010</Value>
+      <Value>8. 5. 2020</Value>
+      <Value>10 000</Value>
+    </Testcase>
+    <Testcase TCNo="5">
+      <Value>6</Value>
+      <Value>20201117/2010</Value>
+      <Value>31. 3. 2020</Value>
+      <Value>9 999</Value>
+    </Testcase>
+    <Testcase TCNo="6">
+      <Value>7</Value>
+      <Value>9916210/0123</Value>
+      <Value>16. 4. 2020</Value>
+      <Value>10 000</Value>
+    </Testcase>
+    <Testcase TCNo="7">
+      <Value>8</Value>
+      <Value>9916210/0123</Value>
+      <Value>8. 5. 2020</Value>
+      <Value>9 999</Value>
+    </Testcase>
+    <Testcase TCNo="8">
+      <Value>9</Value>
+      <Value>9916210/0123</Value>
+      <Value>31. 3. 2020</Value>
+      <Value>10 000</Value>
+    </Testcase>
+  </Testset>
+  <Header>
+    <Value />
+    <Value>cislo_uctu</Value>
+    <Value>date</Value>
+    <Value>castka</Value>
+  </Header>
+  <Stat-Data>
+    <ExecutionTime>0.011</ExecutionTime>
+    <MaxDomainSize>3</MaxDomainSize>
+    <MinDomainSize>2</MinDomainSize>
+    <TotalNoOfCombination>21</TotalNoOfCombination>
+    <TotalNoOfTests>9</TotalNoOfTests>
+    <Algorithm>IPOG</Algorithm>
+  </Stat-Data>
+</System>
+
