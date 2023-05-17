@@ -41,9 +41,9 @@ public class Tests {
 
     @Test
     public void registerTest() {
-        username = "312321";
+        username = "312231321";
         password = "allidoiswin123";
-        email = "thegottt32tt@gmail.com";
+        email = "theg321ottt32tt@gmail.com";
 
         driver.get(registerPage);
         driver.findElement(By.id("user")).sendKeys(username);
@@ -58,6 +58,8 @@ public class Tests {
 
         // Get the current URL
         String currentUrl = driver.getCurrentUrl();
+
+        driver.quit();
 
         // Perform the assertEquals
         assertEquals(loginPage, currentUrl);
@@ -78,8 +80,31 @@ public class Tests {
         // Get the current URL
         String currentUrl = driver.getCurrentUrl();
 
+        driver.quit();
+
         // Perform the assertEquals
         assertEquals(homePage, currentUrl);
+    }
+
+    @Test
+    public void loginErrorTest() {
+        driver.get(loginPage);
+        driver.findElement(By.id("user")).sendKeys("wrongName");
+        driver.findElement(By.id("pass")).sendKeys("wrongPassword");
+
+        driver.findElement(By.id("button")).click();
+
+        // Wait for the error message to be visible
+        WebDriverWait errorWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebElement errorMessage = errorWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("p.loginError")));
+
+        // Get the error message text
+        String errorText = errorMessage.getText();
+
+        // Verify the error message
+        assertEquals("Přihlašovací údaje nebyly zadány správně", errorText);
+
+        driver.quit();
     }
 
     public void login() {
@@ -115,6 +140,8 @@ public class Tests {
 
         // Get the current URL
         String currentUrl = driver.getCurrentUrl();
+
+        driver.quit();
 
         // Perform the assertEquals
         assertEquals(taskPage, currentUrl);
@@ -152,7 +179,48 @@ public class Tests {
             // Assert that there are no tasks on the page
             assertEquals(0, tasksOnPageCount);
         }
+        driver.quit();
     }
+
+    @Test
+    public void doneButtonTest() {
+        login();
+
+        // Wait for the Poznámky link to be clickable
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement taskLink = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[href='../pages/list-notes.php']")));
+
+        taskLink.click();
+
+        WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(3));
+        sleep.until(ExpectedConditions.urlToBe(taskPage));
+
+        // Get the initial number of tasks
+        List<WebElement> taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+        int tasksOnPageCount = taskElements.size();
+
+        // Delete a task if there are tasks on the page
+        if (tasksOnPageCount > 0) {
+            WebElement doneButton = driver.findElement(By.cssSelector("button[name='doneButton']"));
+            doneButton.click();
+
+            // Wait for the note element to have the 'done' class
+            WebDriverWait doneWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            doneWait.until(ExpectedConditions.attributeContains(By.cssSelector("ul.wrapper li.note"), "class", "done"));
+
+            // Verify that the 'done' class is added to the note element
+            WebElement noteElement = driver.findElement(By.cssSelector("ul.wrapper li.note"));
+            String classAttributeValue = noteElement.getAttribute("class");
+            assertEquals("note done", classAttributeValue);
+            driver.quit();
+        } else {
+            driver.quit();
+        }
+    }
+
+
+
+
 
 
 
