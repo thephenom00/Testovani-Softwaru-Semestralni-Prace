@@ -1,5 +1,7 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,7 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Tests {
 
@@ -218,7 +220,33 @@ public class Tests {
         }
     }
 
+    @ParameterizedTest
+    @CsvSource({"false, false, false","rearre, rear, false","test1, test1password, true", "test2, test2password, true", "test3, test3password, true", "test4, test4password, true"})
+    public void loginParametrizedTest(String username, String password, boolean expected) {
+        driver.get(loginPage);
+        driver.findElement(By.id("user")).sendKeys(username);
+        driver.findElement(By.id("pass")).sendKeys(password);
 
+        driver.findElement(By.id("button")).click();
+
+        WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+        if (expected) {
+            sleep.until(ExpectedConditions.urlToBe(homePage));
+        }
+
+
+        // Get the current URL
+        String current = driver.getCurrentUrl();
+
+        // Perform the assertTrue if expected is true
+        if (expected) {
+            assertEquals(current, homePage);
+        } else {
+            assertEquals(current, loginPage);
+        }
+        driver.quit();
+    }
 
 
 
