@@ -3,6 +3,12 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Tests {
 
@@ -23,9 +29,9 @@ public class Tests {
 
     @Test
     public void registerTest() {
-        username = "thegoat";
+        username = "theoattttt";
         password = "allidoiswin123";
-        email = "thegoat@gmail.com";
+        email = "thegottttt@gmail.com";
 
         driver.get(registerPage);
         driver.findElement(By.id("user")).sendKeys(username);
@@ -35,6 +41,14 @@ public class Tests {
 
         driver.findElement(By.id("buttonRegister")).click();
 
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlToBe(loginPage));
+
+        // Get the current URL
+        String currentUrl = driver.getCurrentUrl();
+
+        // Perform the assertEquals
+        assertEquals(loginPage, currentUrl);
 
     }
 
@@ -46,6 +60,8 @@ public class Tests {
 
         driver.findElement(By.id("button")).click();
     }
+
+    
 
 
 }
