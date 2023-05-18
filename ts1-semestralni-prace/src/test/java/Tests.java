@@ -10,8 +10,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import java.time.Duration;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -141,17 +141,22 @@ public class Tests {
 
         Select pageSelect = new Select(paginationForm.findElement(By.id("page_num")));
         List<WebElement> pageOptions = pageSelect.getOptions();
+        int numberOfPages = pageOptions.size();
 
-        if (pageOptions.size() > 1) {
-            pageSelect.selectByValue(Integer.toString(pageOptions.size()));
+        if (numberOfPages > 1) {
+            pageSelect.selectByValue(Integer.toString(numberOfPages));
 
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            wait.until(ExpectedConditions.urlToBe(taskPage));
+            wait.until(ExpectedConditions.urlToBe(taskPage + "?importanceFilter=All&page_num=" + numberOfPages));
+
+            List<WebElement> tasksOnTheLastPage = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+            numberOfAllTasks += 8 * (numberOfPages - 1) + tasksOnTheLastPage.size();
         } else {
             numberOfAllTasks += taskElements.size();
         }
 
-        assertEquals(8, numberOfAllTasks);
+        assertEquals(35, numberOfAllTasks);
+
         driver.quit();
     }
 
@@ -160,10 +165,10 @@ public class Tests {
     @Test
     public void addMultipleTasksTest() {
         login();
-        int numberOfTasksWantToAdd = 7;
+        int numberOfTasksWantToAdd = 35;
 
         // Adds all the tasks
-        for (int i = 0; i < numberOfTasksWantToAdd; i++) {
+        for (int i = 1; i <= numberOfTasksWantToAdd; i++) {
             // Enter task details
             WebElement titleInput = driver.findElement(By.id("title"));
             titleInput.sendKeys("Task Title " + i);
@@ -177,8 +182,11 @@ public class Tests {
             WebElement descriptionTextarea = driver.findElement(By.id("text"));
             descriptionTextarea.sendKeys("Task Description" + i);
 
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(By.name("addNote")));
+
             // Submit the form
-            driver.findElement(By.name("addNote")).click();
+            submitButton.click();
 
             WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(5));
             sleep.until(ExpectedConditions.urlToBe(taskPage));
@@ -191,7 +199,7 @@ public class Tests {
     }
 
     @Test
-    public void deleteAllTasksOnPageTest() {
+    public void removeAllTasksTest() {
         login();
 
         driver.findElement(By.cssSelector("a[href='../pages/list-notes.php']")).click();
