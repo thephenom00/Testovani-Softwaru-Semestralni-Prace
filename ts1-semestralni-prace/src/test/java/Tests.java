@@ -8,6 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -118,36 +119,81 @@ public class Tests {
     }
 
     @Test
-    public void addTaskTest() {
+    public void countAllTheTasks() {
+
+    }
+
+    @Test
+    public void addMultipleTasksTest() {
+        login();
+        int numberOfTasksWantToAdd = 10;
+
+        // Adds all the tasks
+        for (int i = 0; i < numberOfTasksWantToAdd; i++) {
+            // Enter task details
+            WebElement titleInput = driver.findElement(By.id("title"));
+            titleInput.sendKeys("Task Title " + i);
+
+            WebElement dateInput = driver.findElement(By.id("date"));
+            dateInput.sendKeys("12-12-2024");
+
+            WebElement importanceCheckbox = driver.findElement(By.id("noteImportance"));
+            importanceCheckbox.click();
+
+            WebElement descriptionTextarea = driver.findElement(By.id("text"));
+            descriptionTextarea.sendKeys("Task Description" + i);
+
+            // Submit the form
+            driver.findElement(By.name("addNote")).click();
+
+            WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(5));
+            sleep.until(ExpectedConditions.urlToBe(taskPage));
+
+            WebElement home = driver.findElement(By.cssSelector("a[href='../pages/index.php']"));
+            home.click();
+        }
+
+        driver.quit();
+    }
+
+    @Test
+    public void deleteAllTasksOnPageTest() {
         login();
 
-        // Enter task details
-        WebElement titleInput = driver.findElement(By.id("title"));
-        titleInput.sendKeys("Task Title");
-
-        WebElement dateInput = driver.findElement(By.id("date"));
-        dateInput.sendKeys("12-12-2024");
-
-        WebElement importanceCheckbox = driver.findElement(By.id("noteImportance"));
-        importanceCheckbox.click();
-
-        WebElement descriptionTextarea = driver.findElement(By.id("text"));
-        descriptionTextarea.sendKeys("Task Description");
-
-        // Submit the form
-        driver.findElement(By.name("addNote")).click();
+        driver.findElement(By.cssSelector("a[href='../pages/list-notes.php']")).click();
 
         WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(3));
         sleep.until(ExpectedConditions.urlToBe(taskPage));
 
-        // Get the current URL
-        String currentUrl = driver.getCurrentUrl();
+        List<WebElement> taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+        int tasksOnPageCount = taskElements.size();
+
+        if (tasksOnPageCount == 0) {
+            assertEquals(0, tasksOnPageCount);
+        } else {
+            boolean tasksExist = true;
+
+            while (tasksExist) {
+                WebElement deleteButton = driver.findElement(By.cssSelector("button[name='deleteButton']"));
+                deleteButton.click();
+
+                WebDriverWait deletionWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+                deletionWait.until(ExpectedConditions.stalenessOf(taskElements.get(0)));
+
+                taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+                tasksOnPageCount = taskElements.size();
+
+                if (tasksOnPageCount == 0) {
+                    tasksExist = false;
+                }
+            }
+
+            assertEquals(0, tasksOnPageCount);
+        }
 
         driver.quit();
-
-        // Perform the assertEquals
-        assertEquals(taskPage, currentUrl);
     }
+
 
     @Test
     public void deleteTaskTest() {
