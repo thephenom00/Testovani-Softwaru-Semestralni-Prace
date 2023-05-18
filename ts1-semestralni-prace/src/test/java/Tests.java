@@ -41,6 +41,14 @@ public class Tests {
         driver = new ChromeDriver(options);
     }
 
+    public void login() {
+        driver.get(loginPage);
+        driver.findElement(By.id("user")).sendKeys("test1");
+        driver.findElement(By.id("pass")).sendKeys("test1password");
+
+        driver.findElement(By.id("button")).click();
+    }
+
 
     @Test
     public void registerTest() {
@@ -110,23 +118,49 @@ public class Tests {
         driver.quit();
     }
 
-    public void login() {
-        driver.get(loginPage);
-        driver.findElement(By.id("user")).sendKeys("admin");
-        driver.findElement(By.id("pass")).sendKeys("admin");
-
-        driver.findElement(By.id("button")).click();
-    }
 
     @Test
-    public void countAllTheTasks() {
+    public void countAllTasksTest() {
+        login();
+        int numberOfAllTasks = 0;
 
+        driver.findElement(By.cssSelector("a[href='../pages/list-notes.php']")).click();
+
+        WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(3));
+        sleep.until(ExpectedConditions.urlToBe(taskPage));
+
+        // We are on the first page
+        List<WebElement> taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+
+        // If there is no tasks on page
+        if (taskElements.size() == 0) {
+            driver.quit();
+        }
+
+        WebElement paginationForm = driver.findElement(By.id("paginationForm"));
+
+        Select pageSelect = new Select(paginationForm.findElement(By.id("page_num")));
+        List<WebElement> pageOptions = pageSelect.getOptions();
+
+        if (pageOptions.size() > 1) {
+            pageSelect.selectByValue(Integer.toString(pageOptions.size()));
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            wait.until(ExpectedConditions.urlToBe(taskPage));
+        } else {
+            numberOfAllTasks += taskElements.size();
+        }
+
+        assertEquals(8, numberOfAllTasks);
+        driver.quit();
     }
+
+
 
     @Test
     public void addMultipleTasksTest() {
         login();
-        int numberOfTasksWantToAdd = 10;
+        int numberOfTasksWantToAdd = 7;
 
         // Adds all the tasks
         for (int i = 0; i < numberOfTasksWantToAdd; i++) {
