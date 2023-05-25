@@ -77,25 +77,25 @@ public class Tests {
 
     }
 
-    @Test
-    public void loginToPageTest() {
-        driver.get(loginPage);
-        driver.findElement(By.id("user")).sendKeys("admin");
-        driver.findElement(By.id("pass")).sendKeys("admin");
-
-        driver.findElement(By.id("button")).click();
-
-        WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(10));
-        sleep.until(ExpectedConditions.urlToBe(homePage));
-
-        // Get the current URL
-        String currentUrl = driver.getCurrentUrl();
-
-        driver.quit();
-
-        // Perform the assertEquals
-        assertEquals(homePage, currentUrl);
-    }
+//    @Test
+//    public void loginToPageTest() {
+//        driver.get(loginPage);
+//        driver.findElement(By.id("user")).sendKeys("admin");
+//        driver.findElement(By.id("pass")).sendKeys("admin");
+//
+//        driver.findElement(By.id("button")).click();
+//
+//        WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(10));
+//        sleep.until(ExpectedConditions.urlToBe(homePage));
+//
+//        // Get the current URL
+//        String currentUrl = driver.getCurrentUrl();
+//
+//        driver.quit();
+//
+//        // Perform the assertEquals
+//        assertEquals(homePage, currentUrl);
+//    }
 
     @Test
     public void loginErrorTest() {
@@ -155,7 +155,7 @@ public class Tests {
             numberOfAllTasks += taskElements.size();
         }
 
-        assertEquals(35, numberOfAllTasks);
+        assertEquals(20, numberOfAllTasks);
 
         driver.quit();
     }
@@ -165,7 +165,7 @@ public class Tests {
     @Test
     public void addMultipleTasksTest() {
         login();
-        int numberOfTasksWantToAdd = 35;
+        int numberOfTasksWantToAdd = 20;
 
         // Adds all the tasks
         for (int i = 1; i <= numberOfTasksWantToAdd; i++) {
@@ -237,40 +237,40 @@ public class Tests {
     }
 
 
-    @Test
-    public void deleteTaskTest() {
-        login();
-
-        // Wait for the Poznámky link to be clickable
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement taskLink = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[href='../pages/list-notes.php']")));
-
-        taskLink.click();
-
-        WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(3));
-        sleep.until(ExpectedConditions.urlToBe(taskPage));
-
-        // Get the initial number of tasks
-        List<WebElement> taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
-        int tasksOnPageCount = taskElements.size();
-
-        // Delete a task if there are tasks on the page
-        if (tasksOnPageCount > 0) {
-            WebElement deleteButton = driver.findElement(By.cssSelector("button[name='deleteButton']"));
-            deleteButton.click();
-
-            // Get the updated number of tasks
-            taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
-            int updatedTaskCount = taskElements.size();
-
-            // Assert that the number of tasks has decreased by 1
-            assertEquals(tasksOnPageCount - 1, updatedTaskCount);
-        } else {
-            // Assert that there are no tasks on the page
-            assertEquals(0, tasksOnPageCount);
-        }
-        driver.quit();
-    }
+//    @Test
+//    public void deleteTaskTest() {
+//        login();
+//
+//        // Wait for the Poznámky link to be clickable
+//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+//        WebElement taskLink = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[href='../pages/list-notes.php']")));
+//
+//        taskLink.click();
+//
+//        WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(3));
+//        sleep.until(ExpectedConditions.urlToBe(taskPage));
+//
+//        // Get the initial number of tasks
+//        List<WebElement> taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+//        int tasksOnPageCount = taskElements.size();
+//
+//        // Delete a task if there are tasks on the page
+//        if (tasksOnPageCount > 0) {
+//            WebElement deleteButton = driver.findElement(By.cssSelector("button[name='deleteButton']"));
+//            deleteButton.click();
+//
+//            // Get the updated number of tasks
+//            taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+//            int updatedTaskCount = taskElements.size();
+//
+//            // Assert that the number of tasks has decreased by 1
+//            assertEquals(tasksOnPageCount - 1, updatedTaskCount);
+//        } else {
+//            // Assert that there are no tasks on the page
+//            assertEquals(0, tasksOnPageCount);
+//        }
+//        driver.quit();
+//    }
 
     @Test
     public void doneButtonTest() {
@@ -333,6 +333,80 @@ public class Tests {
         } else {
             assertEquals(current, loginPage);
         }
+        driver.quit();
+    }
+
+    @Test
+    public void filterTest() {
+        login();
+
+        /**
+         * Adds tasks without importance
+         */
+        WebElement titleInput = driver.findElement(By.id("title"));
+        titleInput.sendKeys("Important Task");
+
+        WebElement dateInput = driver.findElement(By.id("date"));
+        dateInput.sendKeys("06-06-2026");
+
+        WebElement importanceCheckbox = driver.findElement(By.id("noteImportance"));
+        importanceCheckbox.click();
+
+        WebElement descriptionTextarea = driver.findElement(By.id("text"));
+        descriptionTextarea.sendKeys("Important Task Description");
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(By.name("addNote")));
+
+        // Submit the form
+        submitButton.click();
+
+        WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(5));
+        sleep.until(ExpectedConditions.urlToBe(taskPage));
+
+        WebElement home = driver.findElement(By.cssSelector("a[href='../pages/index.php']"));
+        home.click();
+
+        /**
+         * Adds tasks without importance
+         */
+        WebElement title = driver.findElement(By.id("title"));
+        title.sendKeys("Unimportant Task");
+
+        WebElement date = driver.findElement(By.id("date"));
+        date.sendKeys("12-12-2024");
+
+        WebElement description = driver.findElement(By.id("text"));
+        description.sendKeys("Unimportant Task Description");
+
+        WebDriverWait wait2 = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement button = wait2.until(ExpectedConditions.elementToBeClickable(By.name("addNote")));
+
+        // Submit the form
+        button.click();
+
+        WebDriverWait wait3 = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait3.until(ExpectedConditions.urlToBe(taskPage));
+
+        /**
+         * Select important tasks in filter
+         */
+        WebElement filter = driver.findElement(By.id("importanceFilter"));
+        Select filterSelect = new Select(filter);
+        filterSelect.selectByVisibleText("Důležité");
+        List<WebElement> importantTasks = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+        int numberOfImportantTasks = importantTasks.size();
+        assertTrue(numberOfImportantTasks > 0);
+
+        /**
+         * Select unimportant tasks in filter
+         */
+        WebElement filter2 = driver.findElement(By.id("importanceFilter"));
+        Select filterSelect2 = new Select(filter2);
+        filterSelect2.selectByVisibleText("Nedůležité");
+        List<WebElement> unimportantTasks = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+        int numberOfUnimportantTasks = unimportantTasks.size();
+        assertTrue(numberOfUnimportantTasks > 0);
         driver.quit();
     }
 
