@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -12,7 +13,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
-
 import java.util.List;
 import java.util.Random;
 
@@ -20,26 +20,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class Tests {
 
-    private final String loginPage = "https://wa.toad.cz/~leductha/zwa/view/pages/login.php";
-    private final String registerPage = "https://wa.toad.cz/~leductha/zwa/view/pages/register.php";
-    private final String homePage = "https://wa.toad.cz/~leductha/zwa/view/pages/index.php";
-    private final String taskPage = "https://wa.toad.cz/~leductha/zwa/view/pages/list-notes.php";
+    final String loginPage = "https://wa.toad.cz/~leductha/zwa/view/pages/login.php";
+    final String registerPage = "https://wa.toad.cz/~leductha/zwa/view/pages/register.php";
+    final String homePage = "https://wa.toad.cz/~leductha/zwa/view/pages/index.php";
+    final String taskPage = "https://wa.toad.cz/~leductha/zwa/view/pages/list-notes.php";
 
-    private String username;
-    private String password;
-    private String email;
-
+    String username;
+    String password;
+    String email;
     WebDriver driver;
+
     @BeforeEach
     public void setup() {
-        // Set the path to the chromedriver executable
+        // Set the path to the chromedriver
         System.setProperty("webdriver.chrome.driver", "/Users/goat/ts1/ts1-semestralni-prace/src/test/java/chromedriver");
 
-        // Create ChromeOptions and set the start-fullscreen argument
+        // Set the chrome to fullscreen
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-fullscreen");
 
-        // Create the WebDriver with the ChromeOptions
+        // Create the WebDriver
         driver = new ChromeDriver(options);
 
     }
@@ -51,7 +51,6 @@ public class Tests {
         driver.get(loginPage);
         driver.findElement(By.id("user")).sendKeys("test1");
         driver.findElement(By.id("pass")).sendKeys("test1password");
-
         driver.findElement(By.id("button")).click();
     }
 
@@ -61,6 +60,7 @@ public class Tests {
      */
     public int countAllTasks() {
         login();
+
         int numberOfAllTasks = 0;
 
         driver.findElement(By.cssSelector("a[href='../pages/list-notes.php']")).click();
@@ -68,11 +68,11 @@ public class Tests {
         WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(3));
         sleep.until(ExpectedConditions.urlToBe(taskPage));
 
-        // We are on the first page
-        List<WebElement> taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
+        // All tasks on a page
+        List<WebElement> tasksOnPage = driver.findElements(By.cssSelector("ul.wrapper li.note"));
 
-        // If there is no tasks on page
-        if (taskElements.size() > 0) {
+        // If there are tasks on page
+        if (tasksOnPage.size() > 0) {
             WebElement paginationForm = driver.findElement(By.id("paginationForm"));
 
             Select pageSelect = new Select(paginationForm.findElement(By.id("page_num")));
@@ -80,6 +80,7 @@ public class Tests {
             int numberOfPages = pageOptions.size();
 
             if (numberOfPages > 1) {
+                // Gets to the last page
                 pageSelect.selectByValue(Integer.toString(numberOfPages));
 
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -88,87 +89,77 @@ public class Tests {
                 List<WebElement> tasksOnTheLastPage = driver.findElements(By.cssSelector("ul.wrapper li.note"));
                 numberOfAllTasks += 8 * (numberOfPages - 1) + tasksOnTheLastPage.size();
             } else {
-                numberOfAllTasks += taskElements.size();
+                numberOfAllTasks += tasksOnPage.size();
             }
         }
         return numberOfAllTasks;
-
-
     }
 
     /**
-     * Register Test //1
+     * Testing the registration form
      */
     @Test
     public void registerTest() {
-        username = "331323121";
+        username = "BeautifulUsername23";
         password = "allidoiswin123";
-        email = "theg321otttt@gmail.com";
+        email = "beautifulemail@email.com";
 
         driver.get(registerPage);
         driver.findElement(By.id("user")).sendKeys(username);
         driver.findElement(By.id("email")).sendKeys(email);
         driver.findElement(By.id("pass")).sendKeys(password);
         driver.findElement(By.id("confirmpass")).sendKeys(password);
-
         driver.findElement(By.id("buttonRegister")).click();
 
         WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(10));
         sleep.until(ExpectedConditions.urlToBe(loginPage));
 
-        // Get the current URL
         String currentUrl = driver.getCurrentUrl();
 
         driver.quit();
 
-        // Perform the assertEquals
         assertEquals(loginPage, currentUrl);
-
     }
 
     /**
-     * Login error Test //2
+     * Testing if the error message appears
      */
     @Test
     public void loginErrorTest() {
         driver.get(loginPage);
         driver.findElement(By.id("user")).sendKeys("wrongName");
         driver.findElement(By.id("pass")).sendKeys("wrongPassword");
-
         driver.findElement(By.id("button")).click();
 
-        // Wait for the error message to be visible
+        // Wait for the error message
         WebDriverWait errorWait = new WebDriverWait(driver, Duration.ofSeconds(5));
         WebElement errorMessage = errorWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("p.loginError")));
 
-        // Get the error message text
         String errorText = errorMessage.getText();
 
-        // Verify the error message
         assertEquals("Přihlašovací údaje nebyly zadány správně", errorText);
 
         driver.quit();
     }
 
     /**
-     * Adding multiple tasks Test //3
+     * Adding multiple tasks Test
      */
     @Test
     public void addMultipleTasksTest() {
         int numberOfAllTasksOnPage = countAllTasks();
-        int numberOfTasksWantToAdd = 20;
+        int numberOfTasksWantToAdd = 50;
         int expectedNumberOfTasks = numberOfAllTasksOnPage + numberOfTasksWantToAdd;
 
         // Counted all tasks, need to go back
         WebElement home = driver.findElement(By.cssSelector("a[href='../pages/index.php']"));
         home.click();
 
-
         // Adds all the tasks
         for (int i = 1; i <= numberOfTasksWantToAdd; i++) {
             // Enter task details
             WebElement titleInput = driver.findElement(By.id("title"));
-            titleInput.sendKeys("Task Title " + i);
+            titleInput.sendKeys("Task #" + i);
 
             WebElement dateInput = driver.findElement(By.id("date"));
             dateInput.sendKeys("12-12-2024");
@@ -177,13 +168,16 @@ public class Tests {
             importanceCheckbox.click();
 
             WebElement descriptionTextarea = driver.findElement(By.id("text"));
-            descriptionTextarea.sendKeys("Task Description " + i);
+            descriptionTextarea.sendKeys("Task Description #" + i);
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(By.name("addNote")));
+            WebElement submitButton = driver.findElement(By.name("addNote"));
 
-            // Submit the form
-            submitButton.click();
+            // Scroll into view using JavaScript
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            // Click the submit button using JavaScript
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", submitButton);
+
 
             WebDriverWait sleeep = new WebDriverWait(driver, Duration.ofSeconds(5));
             sleeep.until(ExpectedConditions.urlToBe(taskPage));
@@ -199,7 +193,7 @@ public class Tests {
     }
 
     /**
-     * Removing all tasks Test //4
+     * Removing all tasks Test
      */
     @Test
     public void removeAllTasksTest() {
@@ -207,41 +201,31 @@ public class Tests {
 
         driver.findElement(By.cssSelector("a[href='../pages/list-notes.php']")).click();
 
-        WebDriverWait sleep = new WebDriverWait(driver, Duration.ofSeconds(3));
-        sleep.until(ExpectedConditions.urlToBe(taskPage));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlToBe(taskPage));
 
         List<WebElement> taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
-        int tasksOnPageCount = taskElements.size();
 
-        if (tasksOnPageCount == 0) {
-            assertEquals(0, tasksOnPageCount);
-        } else {
-            boolean tasksExist = true;
+        // Deletes while there is any task
+        while (!taskElements.isEmpty()) {
+            WebElement deleteButton = driver.findElement(By.cssSelector("button[name='deleteButton']"));
+            deleteButton.click();
 
-            while (tasksExist) {
-                WebElement deleteButton = driver.findElement(By.cssSelector("button[name='deleteButton']"));
-                deleteButton.click();
+            wait.until(ExpectedConditions.invisibilityOf(deleteButton));
 
-                WebDriverWait deletionWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-                deletionWait.until(ExpectedConditions.stalenessOf(taskElements.get(0)));
-
-                taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
-                tasksOnPageCount = taskElements.size();
-
-                if (tasksOnPageCount == 0) {
-                    tasksExist = false;
-                }
-            }
-
-            assertEquals(0, tasksOnPageCount);
+            taskElements = driver.findElements(By.cssSelector("ul.wrapper li.note"));
         }
+
+        int tasksOnPageCount = taskElements.size();
+        assertEquals(0, tasksOnPageCount);
 
         driver.quit();
     }
 
 
+
     /**
-     * Done button Test //5
+     * Done button Test
      */
     @Test
     public void doneButtonTest() {
