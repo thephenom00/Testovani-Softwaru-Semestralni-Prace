@@ -33,7 +33,7 @@ public class Tests {
         // Set the path to the chromedriver
         System.setProperty("webdriver.chrome.driver", "/Users/goat/ts1/ts1-semestralni-prace/src/test/java/chromedriver");
 
-        // Set the chrome to fullscreenBdaw
+        // Set the chrome to fullscreen
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-fullscreen");
 
@@ -101,9 +101,9 @@ public class Tests {
      */
     @Test
     public void registerTest() {
-        username = "BeautifulUsername1234";
-        password = "allidoiswin1234";
-        email = "beautifulemail1234@email.com";
+        username = "BeautifulUsername9999";
+        password = "password12345";
+        email = "beautifulemail35442@email.com";
 
         driver.get(registerPage);
         driver.findElement(By.id("user")).sendKeys(username);
@@ -218,6 +218,7 @@ public class Tests {
     public void doneButtonTest() {
         login();
 
+        // Gets to the task page
         WebElement taskLink = driver.findElement(By.cssSelector("a[href='../pages/list-notes.php']"));
         taskLink.click();
 
@@ -335,11 +336,10 @@ public class Tests {
         String selectedOption = selectedOptionElement.getText();
 
         List<WebElement> options = select.getOptions();
-        for (WebElement option : options) {
-            if (!option.getText().equals(selectedOption)) {
-                option.click();
-                break;
-            }
+        if (options.get(0).getText().equals(selectedOption)) {
+            options.get(1).click();
+        } else {
+            options.get(0).click();
         }
 
         WebDriverWait wait2 = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -373,7 +373,9 @@ public class Tests {
         // Wait for the suggestion to appear
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement suggestion = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("suggestion")));
+
         assertTrue(suggestion.isDisplayed());
+
         driver.quit();
     }
 
@@ -484,8 +486,8 @@ public class Tests {
         WebDriverWait sleep1 = new WebDriverWait(driver, Duration.ofSeconds(5));
         sleep1.until(ExpectedConditions.urlToBe(loginPage));
 
-        String current = driver.getCurrentUrl();
-        assertEquals(current, loginPage);
+        String currentPage = driver.getCurrentUrl();
+        assertEquals(currentPage, loginPage);
 
         driver.quit();
     }
